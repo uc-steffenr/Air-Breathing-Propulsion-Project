@@ -13,11 +13,16 @@ class EngineDesign:
 
         self.mc = self.m/(1+self.BPR)
         self.mf = self.m - self.mc
+        print('mc = {0:.2f} kg/s'.format(self.mc))
+        print('mf = {0:.2f} kg/s'.format(self.mf))
+        # self.mc = 20
 
         self.eta_inf_c = 0.90
         self.eta_inf_f = 0.91
         self.pi_f = 1.6
         self.pi_c = 18
+
+        self.deHaller = 0.65
         #########################################
 
 
@@ -130,11 +135,11 @@ class EngineDesign:
         # Ca1 = Ca2 = Ca
         b1 = np.arctan(self.Um/self.Ca)
         V1 = self.Ca/np.cos(b1)
-        V2 = V1 * 0.72
+        V2 = V1 * self.deHaller
         b2 = np.arccos(self.Ca/V2)
         # neglecting work-done factor
-        dToS = (self.Ca*self.Um*(np.tan(b1)-np.tan(b2)))/self.cpa
-        self.est_stages = (self.To3-self.To2)/dToS
+        self.dToS = (self.Ca*self.Um*(np.tan(b1)-np.tan(b2)))/self.cpa
+        self.est_stages = (self.To3-self.To13)/self.dToS
 
         if self.showValues:
             print('###########################')
@@ -145,12 +150,74 @@ class EngineDesign:
             print('V1 = {0:.2f} m/s'.format(V1))
             print('V2 = {0:.2f} m/s'.format(V2))
             print('beta2 = {0:.2f} degrees'.format(np.rad2deg(b2)))
-            print('delta ToS = {0:.2f} K'.format(dToS))
+            print('delta ToS = {0:.2f} K'.format(self.dToS))
             print('Estimated Stages = {0:.2f} stages'.format(self.est_stages))
 
         return
     
-    def compressorStageDesign(self):
+    def compressorStageDesign(self,numStages):
+        self.alpha1 = []
+        self.beta1 = []
+        self.Cw1 = []
+        self.Vw1 = []
+        self.V1 = []
+        self.C1 = []
+
+        self.alpha2 = []
+        self.beta2 = []
+        self.Cw2 = []
+        self.Vw2 = []
+        self.V2 = []
+        self.C2 = []
+
+        self.alpha3 = []
+        self.beta3 = [] 
+        self.Cw3 = []
+        self.Vw3 = []
+        self.C3 = []
+        self.V3 = []
+
+        self.dToS = (self.To3-self.To13)/numStages
+        # need to estimate change in temperature for every stage based on dToS
+        dT_first_last = self.dToS*0.85 # kinda guestimate for first and last delta T
+        dT = self.dToS*1.1
+
+        print('dToS = {0:.2f} K'.format(self.dToS))
+        print('First and last dToS = {0:.2f} K'.format(dT_first_last))
+        print('Other stage dToS - {0:.2f} K'.format(dT))
+
+        # work done factors
+        lam_1 = 0.98
+        lam_2 = 0.93
+        lam_3 = 0.88
+        lam = 0.84
+
+        # for stages 1 and 2
+        dCw = Cw2 = (self.cpa*dT_first_last)/(lam_1*self.Um)
+        a1 = 0
+        b1 = np.arctan(self.Um/self.Ca)
+        b2 = np.arctan((self.Um-Cw2)/self.Ca)
+        a2 = np.arctan(Cw2/self.Ca)
+
+        print('beta1 = {0:.3f}'.format(b1))
+        print('beta2 = {0:.3f}'.format(b2))
+        print('Cw2 = {0:.2f} m/s'.format(Cw2))
+
+        deHaller_test = np.cos(b1)/np.cos(b2)
+        print('V2/V1 = {0:.3f}'.format(deHaller_test))
+
+        if deHaller_test < self.deHaller:
+            print('FIRST STAGE FAILS DEHALLER TEST')
+            print('V2/V1 = {0:.3f}'.format(deHaller_test))
+
+        self.alpha1.append(a1)
+        self.beta1.append(b1)
+        self.alpha2.append(a2)
+        self.beta2.append(b2)
+
+
+
+
         return
     
     def airAngles(self):
