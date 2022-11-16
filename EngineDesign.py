@@ -17,6 +17,7 @@ class EngineDesign:
         self.eta_inf_c = 0.90
         self.eta_inf_f = 0.91
         self.pi_f = 1.6
+        self.pi_c = 18
         #########################################
 
 
@@ -68,6 +69,9 @@ class EngineDesign:
         self.rt = np.sqrt(self.mc/(np.pi*(self.rho13*self.Ca*(1-self.rRatio**2))))
         self.N = self.Ut/(2*np.pi*self.rt)
 
+        self.rr = self.rRatio*self.rT
+        self.rm = (self.rt + self.rr) / 2
+
         self.V13t = np.sqrt(self.Ut**2 + self.Ca**2)
         self.a13 = np.sqrt(self.gamma_c*self.R*self.T13)
         self.M13t = self.V13t/self.a13
@@ -78,6 +82,9 @@ class EngineDesign:
             print('TIP MACH NUMBER EXCEEDS 1.2')
             print('###########################')
             print('M13t = {0:.2f}'.format(self.M13t))
+            # potentially add system exit here??
+        
+        # assuming mean radius is constant for all stages
 
         if self.showValues:
             print('###############################')
@@ -89,7 +96,9 @@ class EngineDesign:
             print('p13 = {0:.2f} bar'.format(self.p13))
             print('rho13 = {0:.3f} kg/m^3'.format(self.rho13))
             print()
-            print('rt = {0:.4f}'.format(self.rt))
+            print('rt = {0:.4f} m'.format(self.rt))
+            print('rr = {0:.4f} m'.format(self.rr))
+            print('rm = {0:.4f} m'.format(self.rm))
             print('N = {0:.2f} rev/s'.format(self.N))
             print('V13t = {0:.2f} m/s'.format(self.V13t))
             print('a13 = {0:.2f} m/s'.format(self.a13))
