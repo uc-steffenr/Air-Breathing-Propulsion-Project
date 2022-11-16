@@ -10,6 +10,7 @@ class EngineDesign:
         self.m = 520 # kg/s
         self.p0 = 1.01 # bar
         self.T0 = 288 # K
+        self.To4 = 2150 # K
 
         self.mc = self.m/(1+self.BPR)
         self.mf = self.m - self.mc
@@ -21,8 +22,13 @@ class EngineDesign:
         self.eta_inf_f = 0.91
         self.pi_f = 1.6
         self.pi_c = 18
+        self.eta_b = 0.98
+        self.eta_inf_t = 0.93
 
         self.deHaller = 0.65
+        self.phi = 0.75
+        self.psi = 3.0 
+        self.N_t = 250 # rev/s 
         #########################################
 
 
@@ -225,3 +231,23 @@ class EngineDesign:
     
     def airAngles(self):
         return
+    
+
+
+    def turbineSpeedandDimensions(self,rRatio_t,Ut_t):
+        #########################################
+        #              DESIGN INPUTS            #
+        #########################################
+        self.rRatio_t = rRatio_t
+        self.Ut_t = Ut_t
+
+        # Assuming combustor efficiency as 0.98
+        self.po4 = self.po3*self.eta_b
+        print('To4 = {0:.3f}'.format(self.To4))
+        print('po4 = {0:.3f}'.format(self.po4))
+
+        
+
+
+        return 
+
