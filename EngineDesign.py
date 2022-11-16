@@ -1,28 +1,43 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-class Compressor:
-    def __init__(self,BPR,ma,p0,T0):
-        self.BPR = BPR
-        self.ma = ma
-        self.p0 = p0
-        self.T0 = T0
-
+class EngineDesign:
+    def __init__(self):
+        #########################################
+        #            GIVEN VALUES               #
+        #########################################
+        self.BPR = 7
+        self.m = 520 # kg/s
+        self.p0 = 1.01 # bar
+        self.T0 = 288 # K
+        
         self.mc = self.m/(1+self.BPR)
         self.mf = self.m - self.mc
 
         self.eta_inf_c = 0.90
         self.eta_inf_f = 0.91
         self.pi_f = 1.6
+        #########################################
 
+
+        #########################################
+        #            ASSUMED VALUES             #
+        #########################################
+
+
+        #########################################
+
+        #########################################
+        #           NECESSARY CONSTANTS         #
+        #########################################
         self.gamma_c = 1.4
         self.gamma_h = 1.333
         self.R = 287 # J/(kg-K)
         self.cpa = 1005 # J/(kg-K)
         self.cpg = 1148 # J/(kg-K)
-
-
-    def speedAndDimension(self,Ca,rRatio,Ut):
+        #########################################
+    
+    def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
         #########################################
         #              DESIGN INPUTS            #
         #########################################
@@ -48,10 +63,10 @@ class Compressor:
 
         self.Vo13 = np.sqrt(self.Ut**2 + self.Ca**2)
     
-    def numStageEstimation(self):
+    def compressorStageEstimation(self):
         return
     
-    def stageDesign(self):
+    def compressorStageDesign(self):
         return
     
     def airAngles(self):
