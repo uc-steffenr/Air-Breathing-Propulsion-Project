@@ -215,8 +215,11 @@ class EngineDesign:
         self.alpha2.append(a2)
         self.beta2.append(b2)
 
+        po_ratio = (1 + ((self.eta_inf_c*dT_first_last)/self.To13))**(self.gamma_c/(self.gamma_c-1))
+        po3_1 = self.po13*po_ratio
+        To3_1 = self.To13 + dT_first_last
 
-
+        
 
         return
     
