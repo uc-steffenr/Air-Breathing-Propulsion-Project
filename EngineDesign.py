@@ -156,26 +156,26 @@ class EngineDesign:
         return
     
     def compressorStageDesign(self,numStages):
-        self.alpha1 = []
-        self.beta1 = []
-        self.Cw1 = []
-        self.Vw1 = []
-        self.V1 = []
-        self.C1 = []
+        self.alpha1_m = []
+        self.beta1_m = []
+        # self.Cw1_m = []
+        # self.Vw1_m = []
+        # self.V1_ = []
+        # self.C1 = []
 
-        self.alpha2 = []
-        self.beta2 = []
-        self.Cw2 = []
-        self.Vw2 = []
-        self.V2 = []
-        self.C2 = []
+        self.alpha2_m = []
+        self.beta2_m = []
+        # self.Cw2 = []
+        # self.Vw2 = []
+        # self.V2 = []
+        # self.C2 = []
 
-        self.alpha3 = []
-        self.beta3 = [] 
-        self.Cw3 = []
-        self.Vw3 = []
-        self.C3 = []
-        self.V3 = []
+        self.alpha3_m = []
+        self.beta3_m = [] 
+        # self.Cw3 = []
+        # self.Vw3 = []
+        # self.C3 = []
+        # self.V3 = []
 
         self.dToS = (self.To3-self.To13)/numStages
         # need to estimate change in temperature for every stage based on dToS
@@ -187,10 +187,63 @@ class EngineDesign:
         print('Other stage dToS - {0:.2f} K'.format(dT))
 
         # work done factors
-        lam_1 = 0.98
-        lam_2 = 0.93
-        lam_3 = 0.88
-        lam = 0.84
+        # lam_1 = 0.98
+        # lam_2 = 0.93
+        # lam_3 = 0.88
+        # lam = 0.84
+
+        lam = [0.98, 0.93, 0.88, 0.84, 0.83]
+
+        To_dl = 0
+        po_dl = 0
+        Lam_dl = 0
+
+        for i in range(numStages):
+            if i == 0:
+                Cw2 = (self.cpa*dT_first_last)/(lam[0]*self.Um)
+                a1 = 0
+                b1 = np.arctan(self.Um/self.Ca)
+                b2 = np.arctan((self.Um-Cw2)/self.Ca)
+                a2 = np.arctan(Cw2/np.Ca)
+
+                # check deHaller on rotor
+                deHaller_test = np.cos(b1)/np.cos(b2)
+                if deHaller_test < self.deHaller:
+                    print('STAGE {0} ROTOR FAILS DEHALLER, V1/V2 = {1:.2f}'.format(i,deHaller_test))
+                
+                self.alpha1_m.append(a1)
+                self.alpha2_m.append(a2)
+                self.beta1_m.append(b1)
+                self.beta2_m.append(b2)
+
+                poRatio = 1 + ((self.eta_inf_c*dT_first_last)/self.To13)**(self.gamma_c/(self.gamma_c-1))
+                po_dl = self.po13*poRatio
+                To_dl = self.To13 + dT_first_last
+                Lam_dl = 1 - (Cw2/(2*self.Um))
+
+            elif i == 1:
+                b1 = np.arctan((self.cpa*dT)/(2*Lam_dl*self.Um*self.Ca) + (self.Um*Lam_dl)/self.Ca)
+                b2 = np.arctan(-(self.cpa*dT)/(2*Lam_dl*self.Um*self.Ca) + (self.Um*Lam_dl)/self.Ca)
+                a1 = a3_dl = np.arctan((self.Um/self.Ca) - np.tan(b1))
+                self.alpha3_m.append(a3_dl)
+                a2 = np.arctan((self.Um/self.Ca) - np.tan(b2))
+                deHaller_test = np.cos(a2)/np.cos(a3_dl)
+                if deHaller_test < self.deHaller:
+                    print('STAGE {0} STATOR FAILS DEHALLER, V3/V3 = {1:.2f}'.format(i-1,deHaller_test))
+                Cwm = (Cw1+Cw2)/2
+                Lam = 1 - Cwm/self.Um
+                poRatio = 1 + ((self.eta_inf_c*self.dToS)/(To_dl+self.dToS))
+                po_dl = po_dl*poRatio
+                To_dl = To_dl + self.dToS
+                
+            elif i == 3:
+                self.dToS = self.dTos - 2
+                
+
+            elif i == numStages-1:
+                break
+            else:
+                break
 
         # for stages 1 and 2
         dCw = Cw2 = (self.cpa*dT_first_last)/(lam_1*self.Um)
@@ -207,7 +260,7 @@ class EngineDesign:
         print('V2/V1 = {0:.3f}'.format(deHaller_test))
 
         if deHaller_test < self.deHaller:
-            print('FIRST STAGE FAILS DEHALLER TEST')
+            print('FIRST STAGE ROTOR FAILS DEHALLER TEST')
             print('V2/V1 = {0:.3f}'.format(deHaller_test))
 
         self.alpha1.append(a1)
@@ -219,7 +272,21 @@ class EngineDesign:
         po3_1 = self.po13*po_ratio
         To3_1 = self.To13 + dT_first_last
 
-        
+        Lam = 1 - (Cw2)/(2*self.Um)
+        b1 = np.arctan((self.cpa*dT)/(2*Lam*self.Um*self.Ca) + (self.Um*Lam)/(self.Ca))
+        b2 = np.arctan(-(self.cpa*dT)/(2*Lam*self.Um*self.Ca) + (self.Um*Lam)/(self.Ca))
+        a1 = np.arctan((self.Um/self.Ca) - np.tan(b1))
+        a2 = np.arctan((self.Um/self.Ca) - np.tan(b2))
+
+        Cw1 = self.Ca*np.tan(a1)
+        Cw2 = self.Ca*np.tan(a2)
+
+        deHaller_test = np.cos(a2)/np.cos(a1)
+        print('V2/V1 = {0:.3f}'.format(deHaller_test))
+        if deHaller_test < self.deHaller:
+            print('FIRST STAGE STATOR FAILS DEHALLER TEST')
+            print('V2/V1 = {0:.3f}'.format(deHaller_test))
+
 
         return
     
