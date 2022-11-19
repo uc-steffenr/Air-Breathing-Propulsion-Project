@@ -11,11 +11,11 @@ def compressorStageDesign(self,numStages):
 
         self.dToS = (self.To3-self.To13)/numStages
         # need to estimate change in temperature for every stage based on dToS
-        dT_first = self.dToS*0.85 # kinda guestimate for first and last delta T
+        dT_first = self.dToS*0.85 # kinda guestimate for first delta T
         dT = self.dToS*1.1
 
         print('dToS = {0:.2f} K'.format(self.dToS))
-        print('First and last dToS = {0:.2f} K'.format(dT_first))
+        print('First dToS = {0:.2f} K'.format(dT_first))
         print('Other stage dToS - {0:.2f} K'.format(dT))
 
         lam = [0.98, 0.93, 0.88, 0.84, 0.83]
