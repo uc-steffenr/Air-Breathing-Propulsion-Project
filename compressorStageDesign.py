@@ -47,8 +47,7 @@ def compressorStageDesign(self,numStages):
                 self.beta1_m.append(b1)
                 self.beta2_m.append(b2)
                 self.alpha1_m.append(a1)
-                self.alpha2_m.append(a2)
-                
+                self.alpha2_m.append(a2)                
 
             elif i == 1:
                 b1 = np.arctan((self.cpa*dT)/(2*lam[1]*self.Um*self.Ca) + (self.Um*Lam_dl)/self.Ca)

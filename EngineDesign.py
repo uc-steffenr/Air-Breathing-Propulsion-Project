@@ -24,7 +24,6 @@ class EngineDesign:
         self.pi_c = 18
 
         self.deHaller = 0.65
-        #########################################
 
         #########################################
         #           NECESSARY CONSTANTS         #
@@ -33,10 +32,13 @@ class EngineDesign:
         self.gamma_h = 1.333
         self.R = 287 # J/(kg-K)
         self.cpa = 1005 # J/(kg-K)
-        self.cpg = 1148 # J/(kg-K)
-        #########################################
+        self.cpg = 1148 # J/(kg-K)        
 
+        #########################################
+        #            EXTRA ARGUMENTS            #
+        #########################################
         self.showValues = False
+        self.machTipExit = False
         self.deHallerExit = False
         # add another variable for constant outer annulus?
 
@@ -45,6 +47,8 @@ class EngineDesign:
                 self.showValues = val
             elif key == 'deHallerExit':
                 self.deHallerExit = val
+            elif key == 'machTipExit':
+                self.machTipExit = val
 
     #####################################################################
     #                       COMPRESSOR METHODS                          #

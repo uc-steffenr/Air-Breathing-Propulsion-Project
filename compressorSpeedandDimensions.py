@@ -9,7 +9,6 @@ def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
         self.Ca = Ca
         self.rRatio = rRatio
         self.Ut = Ut
-        #########################################
 
         # assuming not moving (C0=0) and no loss in the intake
         self.To2 = self.T0
@@ -38,7 +37,8 @@ def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
             print('TIP MACH NUMBER EXCEEDS 1.2')
             print('###########################')
             print('M13t = {0:.2f}'.format(self.M13t))
-            # potentially add system exit here??
+            if self.machTipExit:
+                exit('Design is invalid')
         
         # assuming mean radius is constant for all stages
         # assuming exit velocity of compressor is axial and equal to Ca
