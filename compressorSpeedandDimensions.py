@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sys import exit
 
+# TODO store pressure ratios
+
 def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
         #########################################
         #              DESIGN INPUTS            #

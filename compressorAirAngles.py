@@ -1,61 +1,11 @@
 import numpy as np
+from sys import exit
 
-def compressorAirAngles(self):
-    ##########################
-    #   ROOT RADIUS VALUES   #
-    ##########################
-    self.Cw1_r = []
-    self.C1_r = []
-    self.V1_r = []
-    self.Vw1_r = []
-    self.Cw2_r = []
-    self.C2_r = []
-    self.V2_r = []
-    self.Vw2_r = []
-    self.Cw3_r = []
-    self.C3_r = []
-
-    self.alpha1_r = []
-    self.alpha2_r = []
-    self.alpha3_r = []
-    self.beta1_r = []
-    self.beta2_r = []
-
-    ##########################
-    #   MEAN RADIUS VALUES   #
-    ##########################
-    self.Cw1_m = []
-    self.C1_m = []
-    self.V1_m = []
-    self.Vw1_m = []
-    self.Cw2_m = []
-    self.C2_m = []
-    self.V2_m = []
-    self.Vw2_m = []
-    self.Cw3_m = []
-    self.C3_m = []
-
-    ##########################
-    #    TIP RADIUS VALUES   #
-    ##########################
-    self.Cw1_t = []
-    self.C1_t = []
-    self.V1_t = []
-    self.Vw1_t = []
-    self.Cw2_t = []
-    self.C2_t = []
-    self.V2_t = []
-    self.Vw2_t = []
-    self.Cw3_t = []
-    self.C3_t = []
-
-    self.alpha1_t = []
-    self.alpha2_t = []
-    self.alpha3_t = []
-    self.beta1_t = []
-    self.beta2_t = []    
-    
+def compressorAirAngles(self):        
+    # this part is assuming constant mean diameter
     # for stage 1
+    # self.rr.append(self.rr_inlet)
+    # self.rt.append(self.rt_inlet)
     Ur1 = self.rr_inlet * self.N * 2*np.pi
     Ut1 = self.rt_inlet * self.N * 2*np.pi
 
@@ -77,15 +27,25 @@ def compressorAirAngles(self):
     rr2 = (self.rr_inlet + rr3)/2
     rt2 = (self.rt_inlet + rt3)/2
 
-    # NOTE maybe store radii values too
+    # self.rr.append(rr2)
+    # self.rr.append(rr3)
+    # self.rt.append(rt2)
+    # self.rt.append(rt3)
 
-    # Ur2 = rr2 * self.N * 2*np.pi
-    # Ut2 = rt2 * self.N * 2*np.pi
-    # Ur3 = rr3 * self.N * 2*np.pi
-    # Ut3 = rt3 * self.N * 2*np.pi
+    # NOTE maybe store radii values too
     
+    self.Cw1_r.append(self.Cw1_m[0] * (self.rm/self.rr_inlet))
+    self.Cw1_t.append(self.Cw1_m[0] * (self.rm/self.rt_inlet))
     self.Cw2_r.append(self.Cw2_m[0] * (self.rm/rr2))
     self.Cw2_t.append(self.Cw2_m[0] * (self.rm/rt2))
+
+    self.alpha1_r.append(np.arctan(self.Cw1_r[0]/self.Ca))
+    self.alpha2_r.append(np.arctan(self.Cw2_r[0]/self.Ca))
+    self.beta2_r.append(np.arctan((self.N*2*np.pi*rr2 - self.Cw2_r[0])/self.Ca))
+
+    self.alpha1_t.append(np.arctan(self.Cw1_t[0]/self.Ca))
+    self.alpha2_t.append(np.arctan(self.Cw2_t[0]/self.Ca))
+    self.beta2_t.append(np.arctan((self.N*2*np.pi*rt2 - self.Cw2_t[0])/self.Ca))
 
     rr1 = rt3
     rt1 = rt3
@@ -97,6 +57,8 @@ def compressorAirAngles(self):
         self.C3_m.append(self.Ca/np.cos(self.alpha3_m[i]))
         T3 = self.To[i] - (self.C3_m[i]**2)/(2*self.cpa)
         p3 = self.po[i]*(T3/self.To[i])**(self.gamma_c/(self.gamma_c-1))
+        # print(T3)
+        # print(p3)
         rho3 = p3/(self.R*T3)
         A3 = self.mc/(rho3*self.Ca)
         h = A3/(2*np.pi*self.rm)
@@ -106,5 +68,36 @@ def compressorAirAngles(self):
         rr2 = (rr1 + rr3)/2
         rt2 = (rt1 + rt3)/2
 
+        self.Cw1_r.append(self.Cw1_m[i] * (self.rm/rr1))
+        self.Cw1_t.append(self.Cw1_m[i] * (self.rm/rt1))
         self.Cw2_r.append(self.Cw2_m[i] * (self.rm/rr2))
         self.Cw2_t.append(self.Cw2_m[i] * (self.rm/rt2))
+
+        # if it is station 2, calculate mean angles, otherwise we know Lam = 0.5
+        # so we can use a1=b2 and b1=a2
+
+        self.alpha1_r.append(np.arctan(self.Cw1_r[i]/self.Ca))
+        self.beta1_r.append(np.arctan((self.N*2*np.pi*rr1 - self.Cw1_r[i])/self.Ca))
+        self.alpha2_r.append(np.arctan(self.Cw2_r[i]/self.Ca))
+        self.beta2_r.append(np.arctan((self.N*2*np.pi*rr2 - self.Cw2_r[i])/self.Ca))
+
+        self.alpha1_t.append(np.arctan(self.Cw1_t[i]/self.Ca))
+        self.beta1_t.append(np.arctan((self.N*2*np.pi*rt1 - self.Cw1_t[i])/self.Ca))
+        self.alpha2_t.append(np.arctan(self.Cw2_t[i]/self.Ca))
+        self.beta2_t.append(np.arctan((self.N*2*np.pi*rt2 - self.Cw2_t[i])/self.Ca))
+
+        # TODO verify if we need deHaller for this!!!!!!!!!!!
+
+        # calculate deHaller on tip for rotor and stator
+        # deHaller on previous stator
+        # deHaller_test = np.cos(self.alpha2_t[i-1])/np.cos(self.alpha1_t[i])
+        # if deHaller_test < self.deHaller:
+        #     print('STAGE {0} FAILS DEHALLER TEST AT STATOR TIP; C3/C2 = {1:.2f}'.format(i-1,deHaller_test))
+        #     if self.deHallerExit:
+        #         exit('Design is invalid')
+        
+        # deHaller_test = np.cos(self.beta1_t[i])/np.cos(self.beta2_t[i])
+        # if deHaller_test < self.deHaller:
+        #     print('STAGE {0} FAILS DEHALLER TEST AT ROTOR TIP; V2/V1 = {1:.2f}'.format(i,deHaller_test))
+        #     if self.deHallerExit:
+        #         exit('Design is invalid')
