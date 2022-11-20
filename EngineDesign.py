@@ -29,16 +29,7 @@ class EngineDesign:
         self.eta_inf_t = 0.93
 
         self.deHaller = 0.65
-        #########################################
-
-
-        #########################################
-        #            ASSUMED VALUES             #
-        #########################################
-
-
-        #########################################
-
+      
         #########################################
         #           NECESSARY CONSTANTS         #
         #########################################
@@ -130,12 +121,11 @@ class EngineDesign:
             self.rt = []
         else:
             self.rm = []
-
-
-
-        
-
-        return
-    
-    def airAngles(self):
-        return
+            
+#####################################################################
+#                       COMPRESSOR METHODS                          #
+#####################################################################
+from compressorSpeedandDimensions import compressorSpeedandDimensions    
+from compressorStageEstimation import compressorStageEstimation    
+from compressorStageDesign import compressorStageDesign
+from compressorAirAngles import compressorAirAngles
