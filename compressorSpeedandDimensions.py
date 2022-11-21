@@ -29,6 +29,10 @@ def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
         self.rr_inlet = self.rRatio*self.rt_inlet
         self.rm = (self.rt_inlet + self.rr_inlet) / 2
 
+        if self.constant == 'outer':
+            self.rt = self.rt_inlet
+            self.rm_inlet = self.rm
+
         self.V13t = np.sqrt(self.Ut**2 + self.Ca**2)
         self.a13 = np.sqrt(self.gamma_c*self.R*self.T13)
         self.M13t = self.V13t/self.a13
@@ -49,10 +53,15 @@ def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
         self.T3 = self.To3 - (self.Ca**2)/(2*self.cpa)
         self.p3 = self.po3*(self.T3/self.To3)**(self.gamma_c/(self.gamma_c-1))
         self.rho3 = (self.p3*1e5)/(self.R*self.T3)
-        self.A3 = self.mc/(self.rho3*self.Ca)
-        self.h = self.A3/(2*np.pi*self.rm)
-        self.rt_outlet = self.rm + (self.h/2)
-        self.rr_outlet = self.rm - (self.h/2)
+        
+        if self.constant == 'mean':
+            self.A3 = self.mc/(self.rho3*self.Ca)
+            self.h = self.A3/(2*np.pi*self.rm)
+            self.rt_outlet = self.rm + (self.h/2)
+            self.rr_outlet = self.rm - (self.h/2)
+        else:
+            self.rr_outlet = np.sqrt(self.rt**2 - self.mc/(np.pi*self.rho3*self.Ca))
+            self.rm_outlet = (self.rt + self.rr_outlet)/2
 
 
         if self.showValues:
@@ -71,13 +80,19 @@ def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
             print('p3 = {0:.2f} K'.format(self.p3))
             print('rho3 = {0:.3f} kg/m^3'.format(self.rho3))
             print()
-            print('A3 = {0:.4f} m^2'.format(self.A3))
-            print('h = {0:.4f} m'.format(self.h))
-            print('Inlet rt = {0:.4f} m'.format(self.rt_inlet))
-            print('Inlet rr = {0:.4f} m'.format(self.rr_inlet))
-            print('Outlet rt = {0:.4f} m'.format(self.rt_outlet))
-            print('Outlet rr = {0:.4f} m'.format(self.rr_outlet))
-            print('rm = {0:.4f} m'.format(self.rm))
+            if self.constant == 'mean':
+                print('A3 = {0:.4f} m^2'.format(self.A3))
+                print('h = {0:.4f} m'.format(self.h))
+                print('Inlet rt = {0:.4f} m'.format(self.rt_inlet))
+                print('Inlet rr = {0:.4f} m'.format(self.rr_inlet))
+                print('Outlet rt = {0:.4f} m'.format(self.rt_outlet))
+                print('Outlet rr = {0:.4f} m'.format(self.rr_outlet))
+                print('rm = {0:.4f} m'.format(self.rm))
+            else:
+                print('rt = {0:.4f} m'.format(self.rt))
+                print('Inlet rr = {0:.4f} m'.format(self.rr_inlet))
+                print('Outlet rr = {0:.4f} m'.format(self.rr_outlet))
+
             print('N = {0:.2f} rev/s'.format(self.N))
             print('V13t = {0:.2f} m/s'.format(self.V13t))
             print('a13 = {0:.2f} m/s'.format(self.a13))

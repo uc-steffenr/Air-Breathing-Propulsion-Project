@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sys import exit
+from plotData import *
 
 # NOTE might only need stage 1 and 2 values
 
@@ -115,17 +116,33 @@ class EngineDesign:
                 self.deHallerExit = val
             elif key == 'machTipExit':
                 self.machTipExit = val
+            elif key == 'constant':
+                self.constant = val
         
         # decides how to store non-constant value
         if self.constant == 'mean':
             self.rt = []
         else:
             self.rm = []
-            
-#####################################################################
-#                       COMPRESSOR METHODS                          #
-#####################################################################
-from compressorSpeedandDimensions import compressorSpeedandDimensions    
-from compressorStageEstimation import compressorStageEstimation    
-from compressorStageDesign import compressorStageDesign
-from compressorAirAngles import compressorAirAngles
+
+
+    #####################################################################
+    #                       COMPRESSOR METHODS                          #
+    #####################################################################
+    from compressorSpeedandDimensions import compressorSpeedandDimensions    
+    from compressorStageEstimation import compressorStageEstimation    
+    from compressorStageDesign import compressorStageDesign
+    from compressorAirAngles import compressorAirAngles
+
+    def plotData(self):
+        ar = [self.alpha1_r,self.alpha2_r]
+        am = [self.alpha1_m,self.alpha2_m]
+        at = [self.alpha1_t,self.alpha2_t]
+        br = [self.beta1_r,self.beta2_r]
+        bm = [self.beta1_m,self.beta2_m]
+        bt = [self.beta1_t,self.beta2_t]
+
+        plotAirAngles(ar,am,at,br,bm,bt)
+        return
+   
+
