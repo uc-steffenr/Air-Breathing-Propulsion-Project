@@ -9,7 +9,7 @@ def plotAirAngles(ar,am,at,br,bm,bt):
     # similar for others, won't include alpha3 in these
 
     n = len(ar[0])
-    xticks = ['root','mean','tip']
+    xticks = ['Root','Mean','Tip']
     x = [0,1,2]
 
     for i in range(n):
@@ -29,15 +29,48 @@ def plotAirAngles(ar,am,at,br,bm,bt):
         ax.plot(x,b1,label='b1')
         ax.plot(x,b2,label='b2')
         ax.set_xticks(x,xticks)
+        ax.set_title('Stage {0} Air Angles'.format(i+1))
+        ax.set_ylabel('Angle (Degrees)')
         ax.legend()
 
     return
 
+def plotPoRatio(poRatio):
+    n = len(poRatio)
+    x = [i+1 for i in range(n)]
+
+    fig,ax = plt.subplots()
+    ax.plot(x,poRatio)
+    ax.set_xlabel('Stages')
+    ax.set_ylabel('Pressure Ratio')
+
 def plotPo(po):
-    return
+    n = len(po)
+    x = [i+1 for i in range(n)]
+
+    fig,ax = plt.subplots()
+    ax.plot(x,po)
+    ax.set_xlabel('Stages')
+    ax.set_ylabel('Stagnation Pressure')
+
 
 def plotTo(To):
+    n = len(To)
+    x = [i+1 for i in range(n)]
+
+    fig,ax = plt.subplots()
+    ax.plot(x,To)
+    ax.set_xlabel('Stages')
+    ax.set_ylabel('Stagnation Temperature')
     return
 
 def plotRadii(rr,rm,rt,type='mean'):
+    n = len(rr)
+    if type == 'mean':
+        rm_ = np.ones(n) * rm
+        x = [i for i in range(n)]
+        
+
+
+
     return
