@@ -112,6 +112,8 @@ class EngineDesign:
                 self.deHallerExit = val
             elif key == 'machTipExit':
                 self.machTipExit = val
+            elif key == 'constant':
+                self.constant = val
         
         # decides how to store non-constant value
         if self.constant == 'mean':
