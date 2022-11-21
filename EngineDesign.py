@@ -14,6 +14,7 @@ class EngineDesign:
         self.m = 520 # kg/s
         self.p0 = 1.01 # bar
         self.T0 = 288 # K
+        self.To4 = 2150 # K
 
         self.mc = self.m/(1+self.BPR)
         self.mf = self.m - self.mc
@@ -25,9 +26,11 @@ class EngineDesign:
         self.eta_inf_f = 0.91
         self.pi_f = 1.6
         self.pi_c = 18
+        self.eta_b = 0.98
+        self.eta_inf_t = 0.93
 
         self.deHaller = 0.65
-
+      
         #########################################
         #           NECESSARY CONSTANTS         #
         #########################################
@@ -121,8 +124,6 @@ class EngineDesign:
             self.rt = []
         else:
             self.rm = []
-
-
 
 
     #####################################################################
