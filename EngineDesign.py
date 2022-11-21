@@ -231,13 +231,13 @@ class EngineDesign:
     
 
 
-    def HPturbineSpeedandDimensions(self,phi,psi,DegReact,rRatio):
+    def HPturbineab(self,Ut_t,phi,psi,rRatio):
         #########################################
         #              DESIGN INPUTS            #
         #########################################
+        self.Ut_t = Ut_t 
         self.phi = phi
         self.psi = psi
-        self.DegReact = DegReact
         self.rRatio = rRatio # keeping the same as compressor
         #########################################
 
@@ -247,57 +247,102 @@ class EngineDesign:
         # Inlet conditions assuming combustor efficiency as 0.98
         self.po4 = self.po3*self.eta_b
 
-        # Gas angles to find velocity triangles later in code 
-        self.beta2t = np.arctan((self.psi/2)-(2*self.DegReact)/(2*self.phi))
-        self.alpha2t = np.arctan(np.tan(self.beta2t)+(1/self.phi))
-        self.beta3t = np.arctan((self.psi/2)+(2*self.DegReact)/(2*self.phi))
-        self.alpha3t = np.arctan(np.tan(self.beta3t)-(1/self.phi))
-
-        # Finding work required by compressor for dToS_t
-        self.w_req = self.eta_inf_c*self.cpa*(self.To3-self.To2)
-        self.dToS_t = self.w_req/self.cpg
-
-        # Using dToS_t we can get U at mean radius and axial velo
-        self.Um_t = ((2*self.cpg*self.dToS_t)/self.psi)**(1/2)
-        self.Ca_t = self.phi*self.Um_t # Constant across the stage
+        # Calculate our axial velocity with our givens
+        self.Ca_t = self.phi*self.Ut_t
+        self.dTos_t = (self.psi*(self.Ut_t**2))/(2*self.cpg)
+        print(self.Ca_t)
 
         # Now we will get conditions at turbine inlet assuming there is no whirl component here (Cw1=0) so C1=Ca1
         self.T4 = self.To4 - ((self.Ca_t**2)/(2*self.cpg))
         self.p4 = self.po4*((self.T4/self.To4)**(self.gamma_h/(self.gamma_h-1)))
         self.rho4 = (self.p4*1e5)/(self.R*self.T4)
 
-        # So area at turbine inlet:
-        self.A4 = self.mf/(self.rho4*self.Ca_t)
+        # Radii at tip, root, and mean
+        self.rt_4 = self.Ut_t/(2*np.pi*self.N)
+        self.rr_4 = np.sqrt((self.rt_4**2)-(self.mc/(np.pi*self.rho4*self.Ca_t)))
+        self.rm_4 = (self.rt_4+self.rr_4)/2 # constant through all turbine stages
 
-        # To get height we need to get radii at tip, hub, and middle
-        self.rt_4 = np.sqrt(self.mf/(np.pi*(self.rho4*self.Ca_t*(1-self.rRatio**2))))
-        self.rr_4 = self.rt_4*self.rRatio
-        self.rm_4 = (self.rt_4 + self.rr_4) / 2
-        self.h4 = self.A4/(2*np.pi*self.rm_4)
+        # To get the height of the blades
+        self.h4 = 2*(self.rt_4-self.rm_4)
+
+        # Area at inlet
+        self.A4 = 2*np.pi*self.rm_4*self.h4
+
+        # Finding work required by compressor for dTo45_t
+        self.w_req = self.eta_inf_c*self.cpa*(self.To3-self.To2)
+        self.dTo45 = self.w_req/self.cpg
+
+        # Conditions at outlet
+        self.To5 = self.To4 - self.dTo45
+        self.po5 = self.po4*(self.To5/self.To4)**(self.gamma_h/(self.eta_inf_t*(self.gamma_h-1)))
+        self.T5 = self.To5 - ((self.Ca_t**2)/(2*self.cpg))
+        self.p5 = self.po5*(self.T5/self.To5)**(self.gamma_h/(self.gamma_h-1))
+        self.rho5 = self.p5*1e5/(self.R*self.T5)
+
+        # Area at outlet
+        self.A5 = self.mc/(self.rho5*self.Ca_t)
+
+        # Height at outlet
+        self.h5 = self.A5/(self.rm_4*2*np.pi)
+
+        # Radii at outlet tip and root
         self.rt_5 = self.rm_4 + (self.h4/2)
         self.rr_5 = self.rm_4 - (self.h4/2)
 
+
         # Check Mach number at tip since this will be maximum
-        self.Ut_4 = 2*np.pi*self.rt_4*self.N
-        self.V4t = np.sqrt((self.Ut_4**2)+(self.Ca_t**2))
+        self.V4t = np.sqrt((self.Ut_t**2)+(self.Ca_t**2))
         self.a4 = np.sqrt(self.gamma_h*self.R*self.T4)
         self.M4t = self.V4t/self.a4
 
+        # Check Mach number at tip since this will be maximum
+        self.V5t = np.sqrt((self.Ut_t**2)+(self.Ca_t**2))
+        self.a5 = np.sqrt(self.gamma_h*self.R*self.T5)
+        self.M5t = self.V5t/self.a5
+
+        # Now we will get number of stages from the temperature change across the stage and then across the entire turbine
+        self.t_stages = self.dTo45/self.dTos_t 
+
+
+        # now check tip mach number
+        if self.M4t > 1.2:
+            print('###########################')
+            print('TIP MACH NUMBER EXCEEDS 1.2')
+            print('###########################')
+            print('M4t = {0:.2f}'.format(self.M4t))
+            # potentially add system exit here??
+
+        # now check tip mach number
+        if self.M5t > 1.2:
+            print('###########################')
+            print('TIP MACH NUMBER EXCEEDS 1.2')
+            print('###########################')
+            print('M5t = {0:.2f}'.format(self.M5t))
+            # potentially add system exit here??
+
 
         if self.showValues:
-            print('############################')
-            print('TURBINE SPEED AND DIMENSIONS')
-            print('############################')
+            print('###############################################')
+            print('TURBINE SPEED, DIMENSIONS, AND NUMBER OF STAGES')
+            print('###############################################')
             print('To4 = {0:.2f} K'.format(self.To4))
             print('po4 = {0:.2f} bar'.format(self.po4))
             print('T4 = {0:.2f} K'.format(self.T4))
             print('p4 = {0:.2f} bar'.format(self.p4))
             print('rho4 = {0:.3f} kg/m^3'.format(self.rho4))
+            print('To5 = {0:.2f} K'.format(self.To5))
+            print('po5 = {0:.2f} bar'.format(self.po5))
+            print('T5 = {0:.2f} K'.format(self.T5))
+            print('p5 = {0:.2f} bar'.format(self.p5))
+            print('rho5 = {0:.3f} kg/m^3'.format(self.rho5))
             print()
             print('A4 = {0:.4f} m^2'.format(self.A4))
-            print('h = {0:.4f} m'.format(self.h))
+            print('h4 = {0:.4f} m'.format(self.h4))
             print('Turbine Inlet rt = {0:.4f} m'.format(self.rt_4))
             print('Turbine Inlet rr = {0:.4f} m'.format(self.rr_4))
+            print()
+            print('A5 = {0:.4f} m^2'.format(self.A5))
+            print('h5 = {0:.4f} m'.format(self.h5))
             print('Turbine Outlet rt = {0:.4f} m'.format(self.rt_5))
             print('Turbine Outlet rr = {0:.4f} m'.format(self.rr_5))
             print('Turbine rm = {0:.4f} m'.format(self.rm_4))
@@ -305,12 +350,16 @@ class EngineDesign:
             print('V4t = {0:.2f} m/s'.format(self.V4t))
             print('a4 = {0:.2f} m/s'.format(self.a4))
             print('M4t = {0:.2f}'.format(self.M4t))
+            print()
+            print('# of stages: ',self.t_stages)
 
 
-        # We will assume a constant mean radius
-        self.rm_t = self.Um_t/(2*np.pi*self.N)
-
-        # Rest of velocity triangles
+        
+        # Gas angles to find velocity triangles later in code 
+        # self.beta2t = np.arctan((self.psi/2)-(2*self.DegReact)/(2*self.phi))
+        # self.alpha2t = np.arctan(np.tan(self.beta2t)+(1/self.phi))
+        # self.beta3t = np.arctan((self.psi/2)+(2*self.DegReact)/(2*self.phi))
+        # self.alpha3t = np.arctan(np.tan(self.beta3t)-(1/self.phi))
         
 
 
