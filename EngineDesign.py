@@ -143,6 +143,12 @@ class EngineDesign:
         bt = [self.beta1_t,self.beta2_t]
 
         plotAirAngles(ar,am,at,br,bm,bt)
+        plotPoRatio(self.poRatio)
+        plotPo(self.po)
+        plotTo(self.To)
         return
-   
 
+    #####################################################################
+    #                         TURBINE METHODS                           #
+    #####################################################################
+    # from turbineSpeedandDimensions import turbineSpeedandDimensions

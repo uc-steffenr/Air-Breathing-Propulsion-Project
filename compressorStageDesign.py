@@ -2,14 +2,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sys import exit
 
-# TODO ADD IN OPTION FOR CONSTANT OUTER DIAMETER
-# Can mess with:
-# 
 
-def compressorStageDesign(self,numStages,Lam2 = 0.7):
+def compressorStageDesign(self,numStages,**kwargs):
         self.numStages = numStages
         self.To = [self.To13]
         self.po = [self.po13]
+        self.poRatio = []
 
         self.dToS = (self.To3-self.To13)/numStages
         # need to estimate change in temperature for every stage based on dToS
@@ -23,9 +21,17 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
         print('Other stage dToS = {0:.2f} K'.format(dT))
 
         lam = [0.98, 0.93, 0.88, 0.84, 0.83]
+        Lam2 = 0.7
+        Lam_ = 0.55 # used for constant outer diameter
 
         To_dl = 0
         po_dl = 0
+
+        for key,val in kwargs.items():
+            if key == 'Lam2':
+                Lam2 = val
+            elif key == 'Lam':
+                Lam_ = val
 
         if self.constant == 'mean':
             for i in range(numStages):
@@ -44,6 +50,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                             exit('Design is invalid')
 
                     poRatio = (1 + (self.eta_inf_c*dT_first)/self.To13)**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     po_dl = self.po13*poRatio
                     To_dl = self.To13 + dT_first
                     Lam = 1 - (Cw2/(2*self.Um))
@@ -78,6 +85,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                             exit('Design is invalid')
 
                     poRatio = (1 + ((self.eta_inf_c*dT)/(To_dl)))**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     po_dl = po_dl*poRatio
                     To_dl = To_dl + dT
 
@@ -111,6 +119,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                             exit('Design is invalid')
 
                     poRatio = (1 + (self.eta_inf_c*dT)/(To_dl))**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     po_dl = po_dl * poRatio
                     To_dl = To_dl + dT
 
@@ -138,6 +147,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                     a3 = 0 # because exit flow is axial
 
                     poRatio = (1 + (self.eta_inf_c*dT)/(To_dl))**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     self.po3_real = po_dl*poRatio
                     self.To3_real = To_dl + dT
 
@@ -179,6 +189,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                             exit('Design is invalid')
 
                     poRatio = (1 + (self.eta_inf_c*dT)/(To_dl))**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     po_dl = po_dl * poRatio
                     To_dl = To_dl + dT
 
@@ -208,6 +219,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                             exit('Design is invalid')
 
                     poRatio = (1 + (self.eta_inf_c*dT_first)/self.To13)**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     po_dl = self.po13*poRatio
                     To_dl = self.To13 + dT_first
                     Lam = 1 - (Cw2/(2*self.Ut))
@@ -242,6 +254,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                             exit('Design is invalid')
 
                     poRatio = (1 + ((self.eta_inf_c*dT)/(To_dl)))**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     po_dl = po_dl*poRatio
                     To_dl = To_dl + dT
 
@@ -256,11 +269,11 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                 elif i == 2:
                     # self.dToS = self.dTos - 2 # lower the delta T_0s a bit so we can get Lambda = 0.5
                     dT = dT - 3 # can tune this too
-                    Lam = 0.5
+                    Lam = Lam_
                     b1 = np.arctan((self.cpa*dT)/(2*lam[2]*self.Ut*self.Ca) + (self.Ut*Lam)/self.Ca)
                     b2 = np.arctan(-(self.cpa*dT)/(2*lam[2]*self.Ut*self.Ca) + (self.Ut*Lam)/self.Ca)
-                    a1 = a3_dl = b2
-                    a2 = b1
+                    a1 = a3_dl = np.arctan((self.Ut/self.Ca) - np.tan(b1))               
+                    a2 = np.arctan((self.Ut/self.Ca) - np.tan(b2))
 
                     deHaller_test = np.cos(self.alpha2_t[i-1])/np.cos(a3_dl)
                     if deHaller_test < self.deHaller:
@@ -275,6 +288,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                             exit('Design is invalid')
 
                     poRatio = (1 + (self.eta_inf_c*dT)/(To_dl))**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     po_dl = po_dl * poRatio
                     To_dl = To_dl + dT
 
@@ -297,11 +311,12 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
 
                     b1 = np.arctan((self.cpa*dT)/(2*lam[4]*self.Ut*self.Ca) + (self.Ut*Lam)/self.Ca)
                     b2 = np.arctan(-(self.cpa*dT)/(2*lam[4]*self.Ut*self.Ca) + (self.Ut*Lam)/self.Ca)
-                    a1 = a3_dl = b2
-                    a2 = b1
+                    a1 = a3_dl = np.arctan((self.Ut/self.Ca) - np.tan(b1))               
+                    a2 = np.arctan((self.Ut/self.Ca) - np.tan(b2))
                     a3 = 0 # because exit flow is axial
 
                     poRatio = (1 + (self.eta_inf_c*dT)/(To_dl))**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     self.po3_real = po_dl*poRatio
                     self.To3_real = To_dl + dT
 
@@ -327,8 +342,8 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                 else:
                     b1 = np.arctan((self.cpa*dT)/(2*lam[3]*self.Ut*self.Ca) + (self.Ut*Lam)/self.Ca)
                     b2 = np.arctan(-(self.cpa*dT)/(2*lam[3]*self.Ut*self.Ca) + (self.Ut*Lam)/self.Ca)
-                    a1 = a3_dl = b2
-                    a2 = b1
+                    a1 = a3_dl = np.arctan((self.Ut/self.Ca) - np.tan(b1))               
+                    a2 = np.arctan((self.Ut/self.Ca) - np.tan(b2))
 
                     deHaller_test = np.cos(self.alpha2_t[i-1])/np.cos(a3_dl)
                     if deHaller_test < self.deHaller:
@@ -343,6 +358,7 @@ def compressorStageDesign(self,numStages,Lam2 = 0.7):
                             exit('Design is invalid')
 
                     poRatio = (1 + (self.eta_inf_c*dT)/(To_dl))**(self.gamma_c/(self.gamma_c-1))
+                    self.poRatio.append(poRatio)
                     po_dl = po_dl * poRatio
                     To_dl = To_dl + dT
 
