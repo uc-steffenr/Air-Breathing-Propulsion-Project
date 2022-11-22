@@ -62,6 +62,8 @@ def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
         else:
             self.rr_outlet = np.sqrt(self.rt**2 - self.mc/(np.pi*self.rho3*self.Ca))
             self.rm_outlet = (self.rt + self.rr_outlet)/2
+            self.h3 = 2*(self.rt - self.rm_outlet)
+            self.A3 = 2*np.pi*self.rm_outlet*self.h3
 
 
         if self.showValues:
@@ -92,6 +94,8 @@ def compressorSpeedandDimensions(self,Ca,rRatio,Ut):
                 print('rt = {0:.4f} m'.format(self.rt))
                 print('Inlet rr = {0:.4f} m'.format(self.rr_inlet))
                 print('Outlet rr = {0:.4f} m'.format(self.rr_outlet))
+                print('Blade height = {0:.4f} m'.format(self.h3))
+                print('Outlet Area = {0:.4f} m^2'.format(self.A3))
 
             print('N = {0:.2f} rev/s'.format(self.N))
             print('V13t = {0:.2f} m/s'.format(self.V13t))
