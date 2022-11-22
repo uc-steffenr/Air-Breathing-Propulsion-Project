@@ -28,6 +28,7 @@ class EngineDesign:
         self.pi_c = 18
         self.eta_b = 0.98
         self.eta_inf_t = 0.93
+        self.eta_m = 0.99
 
         self.deHaller = 0.65
       
@@ -148,7 +149,3 @@ class EngineDesign:
         plotTo(self.To)
         return
 
-    #####################################################################
-    #                         TURBINE METHODS                           #
-    #####################################################################
-    # from turbineSpeedandDimensions import turbineSpeedandDimensions
