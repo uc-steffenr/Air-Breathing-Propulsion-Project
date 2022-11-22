@@ -4,89 +4,19 @@ from trianglesolver import solve
 
 # Create Class to solve velocity triangles
 class VelocityTriangle:
-    def __init__(self):
+    def __init__(self, alpha=0, beta=0, Ca=227.5):
         # Initialize all Triangle Values to be NoneType
-        self.beta  = None
-        self.alpha = None
-        self.Vw    = None
-        self.Cw    = None
-        self.V     = None
-        self.C     = None
-        self.Ca    = None
-        
-    ######################################################
-    def Solve(self,**kwargs):
-        # Process Kwargs
-        for key, val in kwargs.items():
-            if key == 'beta':
-                self.beta=val
-            elif key == 'alpha':
-                self.alpha=val
-            elif key == 'V':
-                self.V=val
-            elif key == 'Vw':
-                self.Vw=val
-            elif key == 'Ca':
-                self.Ca=val            
-            elif key == 'C':
-                self.C=val
-            elif key == 'Cw':
-                self.Cw=val
-            else:
-                print('you entered a kwarg wrong.  Try again bozo.')
-        
-        # SOLVING TRIANGLES USING TRIANGLE SOLVER
-        # ------------------------------------------------------------------
-        # Relative triangles - beta and V
-        a_rel = self.Vw
-        A_rel = self.beta
-        b_rel = self.Ca
-        B_rel = None
-        c_rel = self.V
-        C_rel = np.pi/2
-        '''
-        print(a_rel)
-        print(A_rel)
-        print(b_rel)
-        print(B_rel)
-        print(c_rel)
-        print(C_rel)
-        '''
-        # Solving
-        a_rel, b_rel, c_rel, A_rel, B_rel, C_rel =\
-             solve(a=a_rel, b=b_rel, c=c_rel, A=A_rel, B=B_rel, C=C_rel)
-        # Store Values as self to access in main code
-        self.beta  = A_rel
-        self.Vw    = a_rel
-        self.V     = c_rel
-        self.Ca    = b_rel
-        
-        #----------------------------------------------------------------------
-        # Absolute triangles - alpha and C
-        a_abs = self.Cw
-        A_abs = self.alpha
-        b_abs = self.Ca
-        B_abs = None
-        c_abs = self.C
-        C_abs = np.pi/2
-        '''
-        print(a_abs)
-        print(A_abs)
-        print(b_abs)
-        print(B_abs)
-        print(c_abs)
-        print(C_abs)
-        '''
-        # Solving
-        a_abs, b_abs, c_abs, A_abs, B_abs, C_abs =\
-             solve(a=a_abs, b=b_abs, c=c_abs, A=A_abs, B=B_abs, C=C_abs)
-        # Store Values as self to access in main code
-        self.alpha = A_abs
-        self.Cw    = a_abs
-        self.C     = c_abs
+        self.beta  = beta
+        self.alpha = alpha
+        self.Ca    = Ca
+
+        self.Vw    = Ca*np.tan(beta)
+        self.Cw    = Ca*np.tan(alpha)
+        self.V     = np.sqrt(self.Vw**2 + Ca**2)
+        self.C     = np.sqrt(self.Cw**2 + Ca**2)
 
     ############################################################### 
-    def drawtraingle(self):
+    def DrawCompTri(self):
         print('don\'t use this yet')
         
        
